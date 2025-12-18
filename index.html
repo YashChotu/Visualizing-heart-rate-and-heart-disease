@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Heart Rate & Disease Visualization Dashboard</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>❤️ Heart Rate & Disease Visualization Dashboard</h1>
+            <p class="subtitle">Interactive analysis of cardiovascular health data</p>
+            <div class="header-controls">
+                <button id="darkModeToggle" class="btn-icon" title="Toggle Dark Mode">🌙</button>
+                <button id="importCSV" class="btn-icon" title="Import CSV Data">📥</button>
+                <button id="exportCSV" class="btn-icon" title="Export to CSV">📊</button>
+                <button id="exportPDF" class="btn-icon" title="Export to PDF">📄</button>
+                <button id="printDashboard" class="btn-icon" title="Print Dashboard">🖨️</button>
+                <button id="downloadCharts" class="btn-icon" title="Download Charts">💾</button>
+                <button id="fullscreenMode" class="btn-icon" title="Fullscreen Mode">🖥️</button>
+                <button id="showKeyboardShortcuts" class="btn-icon" title="Keyboard Shortcuts">⌨️</button>
+                <button id="soundToggle" class="btn-icon" title="Toggle Sound Alerts">🔔</button>
+            </div>
+        </header>
+
+        <!-- Quick Stats Summary -->
+        <div class="quick-stats-widget">
+            <div class="widget-header">
+                <h4>📊 Quick Summary</h4>
+                <button id="toggleQuickStats" class="btn-mini">−</button>
+            </div>
+            <div class="widget-content" id="quickStatsContent">
+                <div class="quick-stat-item">
+                    <span class="stat-icon">💚</span>
+                    <span>Low Risk: <strong id="quickLowRisk">0</strong></span>
+                </div>
+                <div class="quick-stat-item">
+                    <span class="stat-icon">💛</span>
+                    <span>Medium Risk: <strong id="quickMedRisk">0</strong></span>
+                </div>
+                <div class="quick-stat-item">
+                    <span class="stat-icon">❤️</span>
+                    <span>High Risk: <strong id="quickHighRisk">0</strong></span>
+                </div>
+                <div class="quick-stat-item">
+                    <span class="stat-icon">📈</span>
+                    <span>Trend: <strong id="quickTrend">Stable</strong></span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Alert System -->
+        <div id="alertSystem" class="alert-container" style="display: none;">
+            <div class="alert alert-danger">
+                <strong>⚠️ Alert:</strong> <span id="alertMessage"></span>
+                <button class="alert-close" id="closeAlert">×</button>
+            </div>
+        </div>
+
+        <!-- Real-time Monitor -->
+        <div class="realtime-monitor">
+            <h3>🔴 Live Heart Rate Monitor</h3>
+            <div class="monitor-display">
+                <div class="heart-icon">💓</div>
+                <div class="bpm-display">
+                    <span id="liveBPM">75</span>
+                    <span class="bpm-label">BPM</span>
+                </div>
+                <canvas id="liveChart"></canvas>
+            </div>
+            <button id="toggleMonitor" class="btn-secondary">Start Monitor</button>
+        </div>
+
+        <div class="controls">
+            <button id="generateBtn" class="btn-primary">Generate New Data</button>
+            <button id="resetBtn" class="btn-secondary">Reset View</button>
+            <button id="compareBtn" class="btn-secondary">Compare Data</button>
+            <button id="snapshotBtn" class="btn-secondary">📸 Save Snapshot</button>
+            <button id="viewSnapshotsBtn" class="btn-secondary">📚 View Snapshots</button>
+            <button id="bmiCalculatorBtn" class="btn-secondary">🧮 BMI Calculator</button>
+        </div>
+
+        <div class="stats-grid">
+            <div class="stat-card">
+                <h3>Average Heart Rate</h3>
+                <p class="stat-value" id="avgHeartRate">--</p>
+                <p class="stat-label">BPM</p>
+            </div>
+            <div class="stat-card">
+                <h3>Disease Risk</h3>
+                <p class="stat-value" id="diseaseRisk">--</p>
+                <p class="stat-label">Percentage</p>
+            </div>
+            <div class="stat-card">
+                <h3>Total Patients</h3>
+                <p class="stat-value" id="totalPatients">--</p>
+                <p class="stat-label">Records</p>
+            </div>
+            <div class="stat-card">
+                <h3>High Risk Cases</h3>
+                <p class="stat-value" id="highRisk">--</p>
+                <p class="stat-label">Patients</p>
+            </div>
+        </div>
+
+        <div class="charts-grid">
+            <div class="chart-container">
+                <h2>Heart Rate Distribution</h2>
+                <canvas id="heartRateChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>Disease Risk by Age Group</h2>
+                <canvas id="ageRiskChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>Heart Rate Over Time</h2>
+                <canvas id="timeSeriesChart"></canvas>
+            </div>
+            <div class="chart-container">
+                <h2>Disease Prevalence</h2>
+                <canvas id="diseaseChart"></canvas>
+            </div>
+        </div>
+
+        <div class="data-table">
+            <h2>Patient Data Sample</h2>
+            <div class="table-filters">
+                <input type="text" id="searchInput" placeholder="🔍 Search by ID, Age, or Risk Level..." />
+                <select id="riskFilter">
+                    <option value="all">All Risk Levels</option>
+                    <option value="Low">Low Risk</option>
+                    <option value="Medium">Medium Risk</option>
+                    <option value="High">High Risk</option>
+                </select>
+                <select id="ageFilter">
+                    <option value="all">All Ages</option>
+                    <option value="20-35">20-35 years</option>
+                    <option value="36-50">36-50 years</option>
+                    <option value="51-65">51-65 years</option>
+                    <option value="66+">66+ years</option>
+                </select>
+            </div>
+            <div class="table-container">
+                <table id="patientTable">
+                    <thead>
+                        <tr>
+                            <th>Patient ID</th>
+                            <th>Age</th>
+                            <th>Heart Rate (BPM)</th>
+                            <th>Blood Pressure</th>
+                            <th>Cholesterol</th>
+                            <th>Risk Level</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="tableBody">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <footer>
+            <p>Heart Rate & Disease Visualization Dashboard | Data for demonstration purposes only</p>
+        </footer>
+    </div>
+
+    <!-- Patient Detail Modal -->
+    <div id="patientModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close">&times;</span>
+            <h2>Patient Details</h2>
+            <div id="modalBody"></div>
+        </div>
+    </div>
+
+    <!-- BMI Calculator Modal -->
+    <div id="bmiModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close-bmi">&times;</span>
+            <h2>🧮 BMI & Health Calculator</h2>
+            <div class="calculator-container">
+                <div class="calc-input-group">
+                    <label>Weight (kg):</label>
+                    <input type="number" id="weightInput" placeholder="70" min="20" max="300">
+                </div>
+                <div class="calc-input-group">
+                    <label>Height (cm):</label>
+                    <input type="number" id="heightInput" placeholder="170" min="100" max="250">
+                </div>
+                <button id="calculateBMI" class="btn-primary">Calculate BMI</button>
+                <div id="bmiResult" class="bmi-result"></div>
+                <div id="healthRecommendations" class="health-recommendations"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Keyboard Shortcuts Modal -->
+    <div id="keyboardModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close-keyboard">&times;</span>
+            <h2>⌨️ Keyboard Shortcuts</h2>
+            <div class="shortcuts-grid">
+                <div class="shortcut-item"><kbd>Ctrl + D</kbd> Toggle Dark Mode</div>
+                <div class="shortcut-item"><kbd>Ctrl + E</kbd> Export CSV</div>
+                <div class="shortcut-item"><kbd>Ctrl + P</kbd> Print Dashboard</div>
+                <div class="shortcut-item"><kbd>Ctrl + G</kbd> Generate New Data</div>
+                <div class="shortcut-item"><kbd>Ctrl + M</kbd> Toggle Monitor</div>
+                <div class="shortcut-item"><kbd>Ctrl + F</kbd> Focus Search</div>
+                <div class="shortcut-item"><kbd>Ctrl + S</kbd> Save Snapshot</div>
+                <div class="shortcut-item"><kbd>F11</kbd> Fullscreen Mode</div>
+                <div class="shortcut-item"><kbd>Esc</kbd> Close Modals</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Snapshots Manager Modal -->
+    <div id="snapshotsModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="modal-close-snapshots">&times;</span>
+            <h2>📚 Data Snapshots Manager</h2>
+            <div id="snapshotsList" class="snapshots-list"></div>
+        </div>
+    </div>
+
+    <!-- Import CSV Modal -->
+    <div id="importModal" class="modal">
+        <div class="modal-content">
+            <span class="modal-close-import">&times;</span>
+            <h2>📥 Import Patient Data</h2>
+            <div class="import-container">
+                <p>Upload a CSV file with the following columns:</p>
+                <code>Patient ID, Age, Heart Rate, Blood Pressure, Cholesterol, Risk Level</code>
+                <input type="file" id="csvFileInput" accept=".csv">
+                <button id="uploadCSV" class="btn-primary">Upload & Process</button>
+                <div id="importStatus" class="import-status"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Comparison Modal -->
+    <div id="compareModal" class="modal">
+        <div class="modal-content modal-large">
+            <span class="modal-close-compare">&times;</span>
+            <h2>Data Comparison</h2>
+            <div class="comparison-container">
+                <div class="comparison-section">
+                    <h3>Current Dataset</h3>
+                    <canvas id="compareChart1"></canvas>
+                </div>
+                <div class="comparison-section">
+                    <h3>Previous Dataset</h3>
+                    <canvas id="compareChart2"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Hidden Elements -->
+    <input type="file" id="hiddenFileInput" accept=".csv" style="display: none;">
+    
+    <!-- Audio Elements -->
+    <audio id="alertSound" preload="auto">
+        <source src="data:audio/wav;base64,UklGRnoGAABXQVZFZm10IBAAAAABAAEAQB8AAEAfAAABAAgAZGF0YQoGAACBhYqFbF1fdJivrJBhNjVgodDbq2EcBj+a2/LDciUFLIHO8tiJNwgZaLvt559NEAxQp+PwtmMcBjiR1/LMeSwFJHfH8N2QQAoUXrTp66hVFApGn+DyvmwhBTGH0fPTgjMGHm7A7+OZSA0PVqzn77BdGAg+ltryxnMnBSl+zPLaizsIGGS56+OcTgwKUKjj8bllHgU2jdXzzn0vBSd6yvDdlUELElyx6OyrWBELRJzd8sFuJAUthM/z1YU1Bxtsvezi" type="audio/wav">
+    </audio>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>

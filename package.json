@@ -1,0 +1,19 @@
+{
+  "name": "heart-rate-disease-visualization",
+  "version": "1.0.0",
+  "description": "Interactive heart rate and heart disease visualization dashboard",
+  "main": "index.html",
+  "scripts": {
+    "start": "python -m http.server 8000",
+    "dev": "python -m http.server 8000"
+  },
+  "keywords": [
+    "heart-rate",
+    "health",
+    "visualization",
+    "dashboard",
+    "medical"
+  ],
+  "author": "",
+  "license": "MIT"
+}
